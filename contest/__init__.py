@@ -17,6 +17,7 @@ class C(BaseConstants):
 
 class Subsession(BaseSubsession):
     is_paid = models.BooleanField()
+
     def setup_round(self):
         self.is_paid = True
         for group in self.get_groups():
@@ -25,6 +26,7 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup):
     prize = models.CurrencyField()
+
     def setup_round(self):
         self.prize = C.PRIZE
         for player in self.get_players():
@@ -35,9 +37,15 @@ class Player(BasePlayer):
     endowment = models.CurrencyField()
     cost_per_ticket = models.CurrencyField()
     tickets_purchased = models.IntegerField()
+    prize_won = models.FloatField()
+
     def setup_round(self):
         self.endowment = C.ENDOWMENT
         self.cost_per_ticket = C.COST_PER_TICKET
+
+    @property
+    def coplayer(self):
+        return self.group.get_player_by_id(3-self.id_in_group)
 
 
 # PAGES
