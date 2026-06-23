@@ -1,3 +1,5 @@
+import string
+
 from otree.api import *
 
 
@@ -20,13 +22,13 @@ class Subsession(BaseSubsession):
 
     def setup_round(self):
         self.payment_per_correct = Currency(C.PAYMENT_PER_CORRECT)
-        self.word = ("AB")
-        self.lookup_table = "BA"
+        self.word = ("ABABA")
+        self.lookup_table = string.ascii_uppercase
 
     @property
     def lookup_dict(self):
         lookup = {}
-        for letter in ["A", "B"]:
+        for letter in string.ascii_uppercase:
             lookup[letter] = self.lookup_table.index(letter)+1
         return lookup
 
@@ -49,7 +51,10 @@ class Player(BasePlayer):
     def check_response(self):
         self.is_correct(
             self.response_1 == self.subsession.lookup_dict[self.subsession.word[0]] and
-            self.response_2 == self.subsession.lookup_dict[self.subsession.word[1]]
+            self.response_2 == self.subsession.lookup_dict[self.subsession.word[1]] and
+            self.response_3 == self.subsession.lookup_dict[self.subsession.word[2]] and
+            self.response_4 == self.subsession.lookup_dict[self.subsession.word[3]] and
+            self.response_5 == self.subsession.lookup_dict[self.subsession.word[4]]
         )
         if self.is_correct:
             self.payoff = self.subsession.payment_per_correct
@@ -66,6 +71,9 @@ class Decision(Page):
     form_fields = [
         "response_1",
         "response_2",
+        "response_3",
+        "response_4",
+        "response_5",
     ]
 
     def before_next_page(player, timeout_happened):
