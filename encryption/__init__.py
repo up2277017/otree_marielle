@@ -21,12 +21,14 @@ class Subsession(BaseSubsession):
     def setup_round(self):
         self.payment_per_correct = Currency(C.PAYMENT_PER_CORRECT)
         self.word = ("AB")
+        self.lookup_table = "BA"
 
     @property
     def lookup_dict(self):
-        return{"A":1,
-               "B":2,
-        }
+        lookup = {}
+        for letter in ["A", "B"]:
+            lookup[letter] = self.lookup_table.index(letter)+1
+        return lookup
 
 def creating_session(subsession):
     subsession.setup_round()
