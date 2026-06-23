@@ -19,7 +19,9 @@ class Subsession(BaseSubsession):
     is_paid = models.BooleanField()
 
     def setup_round(self):
-        self.is_paid = True
+        #self.is_paid = True
+        self.is_paid = self.round_number % 2 == 1
+        # this is for paying odd rounds only
         for group in self.get_groups():
             group.setup_round()
 
@@ -47,6 +49,8 @@ class Group(BaseGroup):
                 player.tickets_purchased + player.cost_per_ticket +
                 self.prize * player.prize_won
             )
+            if self.subsession.is_paid:
+                player.payoff = player.earnings
 
 
 class Player(BasePlayer):
@@ -67,6 +71,10 @@ class Player(BasePlayer):
     def coplayer(self):
         return self.group.get_player_by_id(3-self.id_in_group)
 
+    @property
+    def max_tickets_affordable(self):
+        return int(self.endowment / self.cost_per_ticket)
+
 
 # PAGES
 class SetupRound(WaitPage):
@@ -84,7 +92,21 @@ class Intro(Page):
 class Decision(Page):
     form_model = "player"
     form_fields = ["tickets_purchased"]
+
 #this two fields almost always will be there. tickets_purchase will become Tickets Purchased automatically.
+
+    @staticmethod
+    def error_message(player, values):
+        if values["tickets_purchased"] < 0:
+            return "You cannot buy a negative number of tickets."
+# error messages and validation
+        if values["tickets_purchased"] > player.max_tickets_affordable:
+            return (
+                f"Buying {values['tickets_purchased']} tickets would cost "
+                f"{values['tickets_purchased'] * player.cost_per_ticket} "
+                f"which is more than your endowment of {player.endowment}."
+            )
+        return None
 
 class WaitForDecisions(WaitPage):
     wait_for_all_groups = True
