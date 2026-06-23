@@ -25,7 +25,7 @@ class Subsession(BaseSubsession):
         #self.is_paid = True
         #self.is_paid = self.round_number % 2 == 1
         # this is for paying odd rounds only
-        if self.round == 1:
+        if self.round_number == 1:
             self.setup_paid_rounds()
         for group in self.get_groups():
             group.setup_round()
