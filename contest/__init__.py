@@ -1,3 +1,5 @@
+import random
+
 from otree.api import *
 
 
@@ -10,20 +12,27 @@ class C(BaseConstants):
     NAME_IN_URL = 'contest'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 3
+    NUM_PAID_ROUNDS = 1
     ENDOWMENT = 10
     COST_PER_TICKET = Currency(0.50)
     PRIZE = Currency(8)
 
 
 class Subsession(BaseSubsession):
-    is_paid = models.BooleanField()
+    is_paid = models.BooleanField(initial=False)
 
     def setup_round(self):
         #self.is_paid = True
-        self.is_paid = self.round_number % 2 == 1
+        #self.is_paid = self.round_number % 2 == 1
         # this is for paying odd rounds only
+        if self.round == 1:
+            self.setup_paid_rounds()
         for group in self.get_groups():
             group.setup_round()
+    def setup_paid_rounds(self):
+        for rd in random.sample(self.in_rounds(1, C.NUM_ROUNDS),
+                                k = C.NUM_PAID_ROUNDS:
+            rd.is_paid = True
 
 
 class Group(BaseGroup):
@@ -60,6 +69,18 @@ class Group(BaseGroup):
                 player.prize_won = 0
             else:
                 player.prize_won = 0.5
+    def determine_outcome_lottery(self):
+        try:
+            winner = random.choices(self.get_players(),
+                                weights = [p.tickets_purchased for p in self.get_players()],
+                                k = 1)[0]
+        except ValueError:
+            winner = random.choices(self.get_players())
+        for player in self.get_players():
+            if player == winner:
+                player.prize_won = 1
+            else:
+                player.prize_won = 0
 
     def determine_outcome(self):
         csf = self.session.config["csf"]
@@ -67,6 +88,8 @@ class Group(BaseGroup):
             self.determine_outcome_share()
         elif self.csf == "allpay":
             self.determine_outcome_allpay()
+        elif self.csf == "lottery":
+            self.determine_outcome_lottery()
         for player in self.get_players():
             player.earnings = (
                 player.endowment
@@ -88,7 +111,7 @@ class Player(BasePlayer):
     #payoff is already defined in otree
 
     def setup_round(self):
-        self.endowment = self.session.config.get["endowment", C.ENDOWMENT]
+        self.endowment = self.session.config.get("endowment", C.ENDOWMENT)
         self.cost_per_ticket = C.COST_PER_TICKET
 
     @property
@@ -98,6 +121,9 @@ class Player(BasePlayer):
     @property
     def max_tickets_affordable(self):
         return int(self.endowment / self.cost_per_ticket)
+
+    def in_paid_rounds(self):
+        return [rd for rd in self.in_all_rounds() if rd.subsession.is_paid]
 
 
 # PAGES
@@ -148,7 +174,11 @@ class Outcome(Page):
 
 
 class EndBlock(Page):
-    pass
+
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == C.NUM_ROUNDS
+    # C.NUM ROUNDS means that the last round wont be displayed whether last round is 3 or 4 or whatever.
 
 
 class ResultsWaitPage(WaitPage):

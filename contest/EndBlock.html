@@ -1,9 +1,20 @@
 {{ block title }}
-    Page title
+    End Block
 {{ endblock }}
 {{ block content }}
 
-    {{ formfields }}
+{{ for rd in player.in_paid_rounds }}
+
+    Round {{ rd.round_number }},
+    Tickets {{ rd.tickets_purchased }},
+    Coplayer tickets {{ rd.coplayer.tickets_purchased }},
+    Prize share {{ rd.prize_won }},
+    Earnings {{ rd.earnings }},
+    Paid {{ rd.subsession.is_paid }}
+    <br/>
+
+{{ endfor }}
+
     {{ next_button }}
 
 {{ endblock }}
