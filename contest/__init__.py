@@ -10,7 +10,7 @@ class C(BaseConstants):
     NAME_IN_URL = 'contest'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 3
-    ENDOWMENT = Currency(10)
+    ENDOWMENT = 10
     COST_PER_TICKET = Currency(0.50)
     PRIZE = Currency(8)
 
@@ -33,7 +33,8 @@ class Group(BaseGroup):
     def setup_round(self):
         #initialization occurs with setup round
         self.prize = C.PRIZE
-        self.csf = "allpay"
+        self.csf = self.session.config["csf"]
+        # this links back to the setting.py where I have the different types of csf as well. there are three (look at dic...)
         #here we can change the type of csf!
         for player in self.get_players():
             player.setup_round()
@@ -54,13 +55,14 @@ class Group(BaseGroup):
     def determine_outcome_allpay(self):
         for player in self.get_players():
             if player.tickets_purchased > player.coplayer.tickets_purchased:
-                player.prize = 1
+                player.prize_won = 1
             elif player.tickets_purchased < player.coplayer.tickets_purchased:
-                player.prize = 0
+                player.prize_won = 0
             else:
-                player.prize = 0.5
+                player.prize_won = 0.5
 
     def determine_outcome(self):
+        csf = self.session.config["csf"]
         if self.csf == "share":
             self.determine_outcome_share()
         elif self.csf == "allpay":
@@ -86,7 +88,7 @@ class Player(BasePlayer):
     #payoff is already defined in otree
 
     def setup_round(self):
-        self.endowment = C.ENDOWMENT
+        self.endowment = self.session.config.get["endowment", C.ENDOWMENT]
         self.cost_per_ticket = C.COST_PER_TICKET
 
     @property

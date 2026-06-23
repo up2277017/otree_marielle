@@ -3,24 +3,27 @@ from os import environ
 SESSION_CONFIGS = [
     dict(
         name="splash_demo",
-        app_sequence=[
-            "splash"
-        ],
+        app_sequence=["splash"],
         num_demo_participants=3,
     ),
     dict(
         name="quiz_demo",
-        app_sequence=[
-            "quiz"
-        ],
+        app_sequence=["quiz"],
         num_demo_participants=3,
     ),
     dict(
-        name="contest_testing",
-        app_sequence=[
-            "contest"
-        ],
+        name="contest_share_testing",
+        app_sequence=["contest"],
         num_demo_participants=2,
+        csf="share",
+        endowment=10,
+    ),
+    dict(
+        name="contest_allpay_testing",
+        app_sequence=["contest"],
+        num_demo_participants=2,
+        csf="allpay",
+        endowment=10,
     ),
 ]
 
