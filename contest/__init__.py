@@ -54,8 +54,9 @@ class Intro(Page):
 
 
 class Decision(Page):
-    pass
-
+    form_model = "player"
+    form_fields = ["tickets_purchased"]
+#this two fields almost always will be there. tickets_purchase will become Tickets Purchased automatically.
 
 class WaitForDecisions(WaitPage):
     pass
