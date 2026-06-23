@@ -110,7 +110,10 @@ class SetupRound(WaitPage):
 
 
 class Intro(Page):
-    pass
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == 1
+    # this is to omit a specific page, this page will only be shown in round 1.
 
 
 class Decision(Page):
