@@ -3,7 +3,11 @@
 {{ endblock }}
 {{ block content }}
 The word for task is {{ player.round_number }}.
-    {{ formfields }}
+<p>You are encoding word number {{ player.round_number }}</p>
+<p>The lookup table is {{ player.lookup_dict }}</p>
+<p>The word to encode is {{ player.AB }}</p>
+
+    {{ form_fields }}
     {{ next_button }}
 
 {{ endblock }}
