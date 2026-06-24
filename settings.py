@@ -60,8 +60,10 @@ SESSION_CONFIG_DEFAULTS = dict(
     doc=""
 )
 
-PARTICIPANT_FIELDS = []
+PARTICIPANT_FIELDS = ["earnings_contest", "encryption_contest"]
+#can add earnings_contest and earnings_encryption so that you can use as attribute later in contest and encryption py
 SESSION_FIELDS = []
+#participant vars and session vars same things can be done
 
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans

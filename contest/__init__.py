@@ -138,9 +138,10 @@ class Player(BasePlayer):
         self.participant.vars["earnings_contest"] = (
             sum(p.payoff for p in self.in_all_rounds())
         )
+    # self.participant.earnings_contest = ( when i defined earnings contest in settings.py in participants fields --> same as self.participant.vars["earnings_contest]
+    #also makes practical diff when downloading your csv. app wide format vs all apps?
     # phython dicitonary to store variables. participant command here for overarching storing variables.
     # participant variable useful to coomunicate info between apps
-    # right now its storing 2 pound for all participants
     #populate the earnigns from encryption task: homework
 
 # PAGES
