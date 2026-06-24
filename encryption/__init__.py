@@ -32,8 +32,18 @@ class Subsession(BaseSubsession):
             lookup[letter] = self.lookup_table.index(letter)+1
         return lookup
 
-def creating_session(subsession):
-    subsession.setup_round()
+    @property
+    def correct_response(self):
+        return [self.lookup_dict[letter] for letter in self.word]
+        return [
+            self.lookup_dict[self.word[0]],
+            self.lookup_dict[self.word[1]],
+            self.lookup_dict[self.word[2]],
+            self.lookup_dict[self.word[3]],
+            self.lookup_dict[self.word[4]],
+        ]
+
+
 
 class Group(BaseGroup):
     pass
@@ -46,9 +56,29 @@ class Player(BasePlayer):
     response_3 = models.IntegerField()
     response_4 = models.IntegerField()
     response_5 = models.IntegerField()
-    response_6 = models.IntegerField()
+    is_correct = models.BooleanField()
 
-    def check_response(self):
+    @property
+    def response_fields(self):
+        return [
+            "response_1",
+            "response_2",
+            "response_3",
+            "response_4",
+            "response_5",
+        ]
+
+    @property
+    def response(self):
+        return [
+            self.response_1,
+            self.response_2,
+            self.response_3,
+            self.response_4,
+            self.response_5,
+        ]
+
+   # def check_response(self):
         self.is_correct(
             self.response_1 == self.subsession.lookup_dict[self.subsession.word[0]] and
             self.response_2 == self.subsession.lookup_dict[self.subsession.word[1]] and
@@ -59,6 +89,14 @@ class Player(BasePlayer):
         if self.is_correct:
             self.payoff = self.subsession.payment_per_correct
 
+    def check_response(self):
+            self.is_correct = self.response == self.subsession.correct_response
+            if self.is_correct:
+                self.payoff = self.subsession.payment_per_correct
+
+    def creating_session(subsession):
+        subsession.setup_round()
+
 # PAGES
 class Intro(Page):
     @staticmethod
@@ -68,20 +106,21 @@ class Intro(Page):
 
 class Decision(Page):
     form_model = "player"
-    form_fields = [
-        "response_1",
-        "response_2",
-        "response_3",
-        "response_4",
-        "response_5",
-    ]
 
-    def before_next_page(player, timeout_happened):
+
+    @staticmethod
+    def get_form_fields(player):
+        return player.response_fields
+
+    @staticmethod
+    def before_next_page(player,timeout_happened):
         player.check_response()
 
 
 class Results(Page):
-    pass
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == C.NUM_ROUNDS
 
 
 page_sequence = [Intro,
