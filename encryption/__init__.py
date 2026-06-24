@@ -121,8 +121,8 @@ class Player(BasePlayer):
             if self.is_correct:
                 self.payoff = self.subsession.payment_per_correct
 
-    def creating_session(subsession):
-        subsession.setup_round()
+def creating_session(subsession):
+    subsession.setup_round()
 
 # PAGES
 class Intro(Page):
@@ -130,11 +130,11 @@ class Intro(Page):
     def is_displayed(player):
         return player.round_number == 1
 
-@staticmethod
-def before_next_page(player,timeout_happened):
-    player.start_task()
+    @staticmethod
+    def before_next_page(player,timeout_happened):
+        player.start_task()
 
-
+#be careful with  indentation because that changes where a function is applied!
 #before next page to implement functions will only work if the page is displayed. if its not displayed, then it will not record variables. 
     
 class Decision(Page):

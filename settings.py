@@ -37,6 +37,16 @@ SESSION_CONFIGS = [
         app_sequence=["encryption"],
         num_demo_participants=3,
     ),
+    dict(
+        name="summary",
+        app_sequence=[
+            "contest",
+            "summary",
+        ],
+        csf="allpay",
+        endowment=10,
+        num_demo_participants=2,
+    ),
 ]
 # note that stuff added here can be changed direcly in the browser before the experimet is run.
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs

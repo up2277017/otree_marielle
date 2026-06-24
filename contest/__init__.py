@@ -11,7 +11,8 @@ Implmentation of Contests games with selectable CSF
 class C(BaseConstants):
     NAME_IN_URL = 'contest'
     PLAYERS_PER_GROUP = 2
-    NUM_ROUNDS = 3
+    #NUM_ROUNDS = 3
+    NUM_ROUNDS = 1
     NUM_PAID_ROUNDS = 1
     ENDOWMENT = 10
     COST_PER_TICKET = Currency(0.50)
@@ -132,6 +133,15 @@ class Player(BasePlayer):
     def in_paid_rounds(self):
         return [rd for rd in self.in_all_rounds() if rd.subsession.is_paid]
 
+    def store_payoffs(self):
+        #self.participant.vars["earnings_contest"] = Currency(2)
+        self.participant.vars["earnings_contest"] = (
+            sum(p.payoff for p in self.in_all_rounds())
+        )
+    # phython dicitonary to store variables. participant command here for overarching storing variables.
+    # participant variable useful to coomunicate info between apps
+    # right now its storing 2 pound for all participants
+
 
 # PAGES
 class SetupRound(WaitPage):
@@ -186,6 +196,10 @@ class EndBlock(Page):
     def is_displayed(player):
         return player.round_number == C.NUM_ROUNDS
     # C.NUM ROUNDS means that the last round wont be displayed whether last round is 3 or 4 or whatever.
+    @staticmethod
+    def before_next_page(player,timeout_happened):
+        player.store_payoffs()
+        #example of calling a function, this function needs to be written in class(player)
 
 
 class ResultsWaitPage(WaitPage):
