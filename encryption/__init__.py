@@ -1,4 +1,6 @@
 import string
+import random
+import time
 
 from otree.api import *
 
@@ -14,14 +16,19 @@ class C(BaseConstants):
     NUM_ROUNDS = 3
     PAYMENT_PER_CORRECT = 0.10
     TIME_FOR_TASK = 300
+    RANDOM_SEED = 12345678
 
 
 class Subsession(BaseSubsession):
+    random_seed = models.IntegerField()
     payment_per_correct = models.CurrencyField()
     lookup_table = models.StringField()
     word = models.StringField()
 
     def setup_round(self):
+        if self.round_number == 1:
+            self.random_seed = C.RANDOM_SEED
+            random.seed(self.random_seed)
         self.payment_per_correct = Currency(C.PAYMENT_PER_CORRECT)
         self.word = ("ABABA")
         self.lookup_table = string.ascii_uppercase
