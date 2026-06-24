@@ -141,7 +141,7 @@ class Player(BasePlayer):
     # phython dicitonary to store variables. participant command here for overarching storing variables.
     # participant variable useful to coomunicate info between apps
     # right now its storing 2 pound for all participants
-
+    #populate the earnigns from encryption task: homework
 
 # PAGES
 class SetupRound(WaitPage):
