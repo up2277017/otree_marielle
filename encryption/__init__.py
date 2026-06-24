@@ -24,14 +24,19 @@ class Subsession(BaseSubsession):
     payment_per_correct = models.CurrencyField()
     lookup_table = models.StringField()
     word = models.StringField()
-
+#seed must be only in the first round! we dont want the same word and lookuptable for every round. but we want the first round to be the same wherever we run the experiment.
     def setup_round(self):
         if self.round_number == 1:
             self.random_seed = C.RANDOM_SEED
             random.seed(self.random_seed)
         self.payment_per_correct = Currency(C.PAYMENT_PER_CORRECT)
-        self.word = ("ABABA")
-        self.lookup_table = string.ascii_uppercase
+        #self.word = ("ABABA")
+        self.word = "".join(random.choices(string.ascii_uppercase, k=5))
+        self.lookup_table = "".join(random.sample(string.ascii_uppercase, 26))
+        #self.lookup_table = string.ascii_uppercase
+
+        for player in self.get_players():
+            player.setup_round()
 
     @property
     def lookup_dict(self):
@@ -66,8 +71,8 @@ class Player(BasePlayer):
     is_correct = models.BooleanField()
     time_for_task = models.IntegerField()
     started_task_at= models.FloatField()
-    time_elapsed = models.FloatField()
-    time_remaining = models.FloatField()
+    #time_elapsed = models.FloatField()
+    #time_remaining = models.FloatField()
     
     def setup_round(self):
         self.time_for_task = C.TIME_FOR_TASK
@@ -76,9 +81,9 @@ class Player(BasePlayer):
         self.started_task_at = time.time()
     
     def get_time_remaining(self):
-        self.time_elapsed = time.time() - self.in_round(1).started_task_at
-        self.time_remaining = self.time_for_task - self.time_elapsed
-        return self.time_remaining
+        #self.time_elapsed = time.time() - self.in_round(1).started_task_at
+        #self.time_remaining = self.time_for_task - self.time_elapsed
+        return self.time_for_task - (time.time() - self.in_round(1).started_task_at)
 
     @property
     def response_fields(self):
@@ -128,8 +133,7 @@ class Intro(Page):
 @staticmethod
 def before_next_page(player,timeout_happened):
     player.start_task()
-    player.get_time_elapsed
-    player.get_time_remaining
+
 
 #before next page to implement functions will only work if the page is displayed. if its not displayed, then it will not record variables. 
     
