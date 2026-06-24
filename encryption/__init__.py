@@ -13,6 +13,7 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 3
     PAYMENT_PER_CORRECT = 0.10
+    TIME_FOR_TASK = 300
 
 
 class Subsession(BaseSubsession):
@@ -50,13 +51,27 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    time_for_task = models.IntegerField()
     response_1 = models.IntegerField()
     response_2 = models.IntegerField()
     response_3 = models.IntegerField()
     response_4 = models.IntegerField()
     response_5 = models.IntegerField()
     is_correct = models.BooleanField()
+    time_for_task = models.IntegerField()
+    started_task_at= models.FloatField()
+    time_elapsed = models.FloatField()
+    time_remaining = models.FloatField()
+    
+    def setup_round(self):
+        self.time_for_task = C.TIME_FOR_TASK
+    
+    def start_task(self):
+        self.started_task_at = time.time()
+    
+    def get_time_remaining(self):
+        self.time_elapsed = time.time() - self.in_round(1).started_task_at
+        self.time_remaining = self.time_for_task - self.time_elapsed
+        return self.time_remaining
 
     @property
     def response_fields(self):
@@ -103,7 +118,14 @@ class Intro(Page):
     def is_displayed(player):
         return player.round_number == 1
 
+@staticmethod
+def before_next_page(player,timeout_happened):
+    player.start_task()
+    player.get_time_elapsed
+    player.get_time_remaining
 
+#before next page to implement functions will only work if the page is displayed. if its not displayed, then it will not record variables. 
+    
 class Decision(Page):
     form_model = "player"
 
@@ -115,8 +137,11 @@ class Decision(Page):
     @staticmethod
     def before_next_page(player,timeout_happened):
         player.check_response()
-
-
+        
+    @staticmethod
+    def get_timeout_seconds(player):
+        return player.get_time_remaining()
+    
 class Results(Page):
     @staticmethod
     def is_displayed(player):
