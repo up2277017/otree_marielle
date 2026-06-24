@@ -1,5 +1,9 @@
 from otree.api import *
 
+import contest
+
+#contest.player
+
 
 doc = """
 app to display summary of earnings
@@ -18,6 +22,11 @@ class Subsession(BaseSubsession):
             player.earnings_contest = player.participant.vars.get["earnings_contest", Currency(67)]
             #line above is coming from contest store function!
             #by adding .get we can add a default value for earnings.
+            #player.earnings_contest = sum(
+            #    p.payoff for p in contest.Player.objects_filter(participant=player.participant)
+            #)
+            # the line above is another way to access information from other apps.
+            # or p.payoff for p in player.in_contest_rounds()
             player.earnings_encryption = player.participant.vars.get["earnings_encryption", Currency(67)]
             player.earnings_encryption = Currency(1.50)
 #we can do this at subsession level if we want everyone at the same. but do it player level if everyone can complete at different times.
@@ -31,6 +40,8 @@ class Player(BasePlayer):
     earnings_contest = models.CurrencyField()
     earnings_encryption = models.CurrencyField()
 
+    def in_contest_rounds(self):
+        return contest.Player.objects_filter(particpant=self.participant)
 
 # PAGES
 class CollectResults(WaitPage):
