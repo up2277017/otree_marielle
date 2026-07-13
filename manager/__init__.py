@@ -12,7 +12,7 @@ information is shown.
 class C(BaseConstants):
     NAME_IN_URL = 'manager'
     PLAYERS_PER_GROUP = None
-    NUM_ROUNDS = 25
+    NUM_ROUNDS = 3
     TOTAL_PENCE = 100
 
 
@@ -89,15 +89,16 @@ def creating_session(subsession: Subsession):
     if subsession.round_number != 1:
         return
 
-    if len(PSEUDO_PAIRS) != C.NUM_ROUNDS:
+    #if len(PSEUDO_PAIRS) != C.NUM_ROUNDS:
+    if len(PSEUDO_PAIRS) < C.NUM_ROUNDS:
         raise ValueError(
-            f'PSEUDO_PAIRS must contain exactly {C.NUM_ROUNDS} pairs, '
-            f'but it contains {len(PSEUDO_PAIRS)}.'
+            f"PSEUDO_PAIRS must contain at least {C.NUM_ROUNDS} pairs, "
+            f"but it contains {len(PSEUDO_PAIRS)}."
         )
 
     for first_round_player in subsession.get_players():
         # Each manager sees all 25 pairs in an independently randomized order.
-        ordered_pairs = random.sample(PSEUDO_PAIRS, k=len(PSEUDO_PAIRS))
+        ordered_pairs = random.sample(PSEUDO_PAIRS, k=C.NUM_ROUNDS)
 
         for round_number, pair in enumerate(ordered_pairs, start=1):
             player = first_round_player.in_round(round_number)
