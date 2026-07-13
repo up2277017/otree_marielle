@@ -1,0 +1,37 @@
+{{ block title }}
+What You Will See
+{{ endblock }}
+
+{{ block content }}
+<div class="card mb-4">
+    <div class="card-body">
+        <p>
+            For each pair of workers, you will be shown information about how they performed
+            in a work task.
+        </p>
+
+        <p>Specifically, you will see:</p>
+        <ul>
+            <li>
+                How many letters each worker correctly placed during the task.
+                Higher numbers mean better performance.
+            </li>
+
+            {{ if show_help }}
+            <li>
+                How many letters each worker chose to reveal to help a co-worker who completed
+                a harder version of the task in which the correct letter order was concealed.
+                Revealing letters helped the co-worker and involved a personal cost to the worker.
+            </li>
+            {{ endif }}
+        </ul>
+
+        <p>
+            You will not see the workers' names or any identifying information.
+            All decisions are anonymous and confidential.
+        </p>
+    </div>
+</div>
+
+{{ next_button }}
+{{ endblock }}

@@ -47,6 +47,20 @@ SESSION_CONFIGS = [
         endowment=10,
         num_demo_participants=2,
     ),
+    dict(
+        name='manager_performance_only',
+        display_name='Manager Study – Performance Only',
+        app_sequence=['manager'],
+        num_demo_participants=1,
+        show_help=False,
+    ),
+    dict(
+        name='manager_performance_and_help',
+        display_name='Manager Study – Performance and Helping',
+        app_sequence=['manager'],
+        num_demo_participants=1,
+        show_help=True,
+    ),
 ]
 # note that stuff added here can be changed direcly in the browser before the experimet is run.
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
