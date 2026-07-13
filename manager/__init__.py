@@ -12,7 +12,7 @@ information is shown.
 class C(BaseConstants):
     NAME_IN_URL = 'manager'
     PLAYERS_PER_GROUP = None
-    NUM_ROUNDS = 3
+    NUM_ROUNDS = 25
     TOTAL_PENCE = 100
 
 
@@ -89,7 +89,6 @@ def creating_session(subsession: Subsession):
     if subsession.round_number != 1:
         return
 
-    #if len(PSEUDO_PAIRS) != C.NUM_ROUNDS:
     if len(PSEUDO_PAIRS) < C.NUM_ROUNDS:
         raise ValueError(
             f"PSEUDO_PAIRS must contain at least {C.NUM_ROUNDS} pairs, "
