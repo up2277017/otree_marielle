@@ -1,19 +1,24 @@
-from otree.api import *
-import random
+import csv
+from pathlib import Path
 
+from otree.api import *
 
 doc = """
-Manager study: participants evaluate 25 pairs of workers and divide 100 pence
-between Worker A and Worker B. The session config determines whether helping
-information is shown.
+Manager study: each manager evaluates a scheduled set of up to 25 unique worker
+pairs and divides 100 pence between Worker A and Worker B. Each pair is assigned
+once overall to either the performance-only or performance-plus-helping treatment.
 """
 
 
 class C(BaseConstants):
     NAME_IN_URL = 'manager'
     PLAYERS_PER_GROUP = None
+    # oTree creates this many possible rounds. The assignment schedule can give
+    # an individual manager fewer rounds, and the unused rounds stay hidden.
     NUM_ROUNDS = 25
     TOTAL_PENCE = 100
+    PERFORMANCE_ONLY = "performance_only"
+    PERFORMANCE_AND_HELP = "performance_and_help"
 
 
 class Subsession(BaseSubsession):
@@ -25,10 +30,17 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+    # Assignment metadata, repeated across rounds for transparent exports.
+    manager_slot = models.IntegerField()
+    manager_treatment = models.StringField()
+    assigned_pair_count = models.IntegerField(min=1, max=25)
+    assignment_seed = models.IntegerField()
+    worker_1_is_a = models.BooleanField()
+
     # Pair information shown in this round
     pair_id = models.IntegerField()
 
-    # Internal pseudo-worker IDs, stored for later merging but never displayed
+    # Internal worker IDs, stored for later merging but never displayed
     worker_a_id = models.StringField()
     worker_b_id = models.StringField()
 
@@ -50,78 +62,260 @@ class Player(BasePlayer):
     )
 
 
-# -----------------------------------------------------------------------------
-# TEMPORARY PSEUDO DATA
-# Replace this list later with the real 25 worker pairs from Qualtrics.
-# Each worker has: ID, number correct (0-22), and number revealed/helped (0-22).
-# -----------------------------------------------------------------------------
-PSEUDO_PAIRS = [
-    dict(pair_id=1,  w1_id='W001', w1_correct=18, w1_help=4,  w2_id='W002', w2_correct=18, w2_help=16),
-    dict(pair_id=2,  w1_id='W003', w1_correct=21, w1_help=0,  w2_id='W004', w2_correct=12, w2_help=0),
-    dict(pair_id=3,  w1_id='W005', w1_correct=9,  w1_help=20, w2_id='W006', w2_correct=20, w2_help=3),
-    dict(pair_id=4,  w1_id='W007', w1_correct=15, w1_help=10, w2_id='W008', w2_correct=15, w2_help=10),
-    dict(pair_id=5,  w1_id='W009', w1_correct=22, w1_help=22, w2_id='W010', w2_correct=6,  w2_help=2),
-    dict(pair_id=6,  w1_id='W011', w1_correct=14, w1_help=2,  w2_id='W012', w2_correct=14, w2_help=18),
-    dict(pair_id=7,  w1_id='W013', w1_correct=19, w1_help=8,  w2_id='W014', w2_correct=11, w2_help=8),
-    dict(pair_id=8,  w1_id='W015', w1_correct=7,  w1_help=22, w2_id='W016', w2_correct=21, w2_help=1),
-    dict(pair_id=9,  w1_id='W017', w1_correct=17, w1_help=6,  w2_id='W018', w2_correct=16, w2_help=14),
-    dict(pair_id=10, w1_id='W019', w1_correct=10, w1_help=0,  w2_id='W020', w2_correct=10, w2_help=22),
-    dict(pair_id=11, w1_id='W021', w1_correct=20, w1_help=5,  w2_id='W022', w2_correct=13, w2_help=17),
-    dict(pair_id=12, w1_id='W023', w1_correct=12, w1_help=12, w2_id='W024', w2_correct=12, w2_help=4),
-    dict(pair_id=13, w1_id='W025', w1_correct=16, w1_help=19, w2_id='W026', w2_correct=19, w2_help=7),
-    dict(pair_id=14, w1_id='W027', w1_correct=8,  w1_help=6,  w2_id='W028', w2_correct=18, w2_help=6),
-    dict(pair_id=15, w1_id='W029', w1_correct=22, w1_help=0,  w2_id='W030', w2_correct=22, w2_help=15),
-    dict(pair_id=16, w1_id='W031', w1_correct=13, w1_help=9,  w2_id='W032', w2_correct=17, w2_help=9),
-    dict(pair_id=17, w1_id='W033', w1_correct=5,  w1_help=21, w2_id='W034', w2_correct=20, w2_help=2),
-    dict(pair_id=18, w1_id='W035', w1_correct=18, w1_help=13, w2_id='W036', w2_correct=14, w2_help=5),
-    dict(pair_id=19, w1_id='W037', w1_correct=11, w1_help=3,  w2_id='W038', w2_correct=11, w2_help=19),
-    dict(pair_id=20, w1_id='W039', w1_correct=19, w1_help=11, w2_id='W040', w2_correct=16, w2_help=1),
-    dict(pair_id=21, w1_id='W041', w1_correct=6,  w1_help=15, w2_id='W042', w2_correct=15, w2_help=15),
-    dict(pair_id=22, w1_id='W043', w1_correct=21, w1_help=4,  w2_id='W044', w2_correct=9,  w2_help=18),
-    dict(pair_id=23, w1_id='W045', w1_correct=14, w1_help=22, w2_id='W046', w2_correct=14, w2_help=0),
-    dict(pair_id=24, w1_id='W047', w1_correct=17, w1_help=7,  w2_id='W048', w2_correct=20, w2_help=12),
-    dict(pair_id=25, w1_id='W049', w1_correct=8,  w1_help=8,  w2_id='W050', w2_correct=8,  w2_help=14),
-]
+DATA_DIRECTORY = Path(__file__).with_name("data")
+PAIR_DATA_PATH = DATA_DIRECTORY / "worker_pairs.csv"
+ASSIGNMENT_DATA_PATH = DATA_DIRECTORY / "manager_assignments.csv"
+
+
+def load_worker_pairs() -> list[dict]:
+    """Load and validate the fixed pairs created before the oTree session."""
+    required_fields = {
+        "pair_id",
+        "worker_1_id",
+        "worker_1_correct",
+        "worker_1_help",
+        "worker_2_id",
+        "worker_2_correct",
+        "worker_2_help",
+    }
+    try:
+        pair_file = PAIR_DATA_PATH.open(newline="", encoding="utf-8-sig")
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            f"Missing {PAIR_DATA_PATH}. Run manager/matching/create_random_pairs.py "
+            "before starting oTree."
+        ) from exc
+
+    with pair_file:
+        reader = csv.DictReader(pair_file)
+        missing_fields = required_fields.difference(reader.fieldnames or [])
+        if missing_fields:
+            raise ValueError(
+                f"{PAIR_DATA_PATH} is missing columns: {sorted(missing_fields)}"
+            )
+
+        pairs = []
+        pair_ids = set()
+        worker_ids = set()
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                pair = dict(
+                    pair_id=int(row["pair_id"]),
+                    w1_id=row["worker_1_id"].strip(),
+                    w1_correct=int(row["worker_1_correct"]),
+                    w1_help=int(row["worker_1_help"]),
+                    w2_id=row["worker_2_id"].strip(),
+                    w2_correct=int(row["worker_2_correct"]),
+                    w2_help=int(row["worker_2_help"]),
+                )
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"Invalid value in {PAIR_DATA_PATH} on row {row_number}."
+                ) from exc
+
+            if pair["pair_id"] in pair_ids:
+                raise ValueError(f"Duplicate pair_id {pair['pair_id']}.")
+            pair_ids.add(pair["pair_id"])
+            for worker_number in (1, 2):
+                worker_id = pair[f"w{worker_number}_id"]
+                if not worker_id:
+                    raise ValueError(f"Missing worker ID on row {row_number}.")
+                if worker_id in worker_ids:
+                    raise ValueError(f"Worker {worker_id!r} appears in more than one pair.")
+                worker_ids.add(worker_id)
+                for measure in ("correct", "help"):
+                    value = pair[f"w{worker_number}_{measure}"]
+                    if not 0 <= value <= 22:
+                        raise ValueError(
+                            f"{measure} must be between 0 and 22 on row {row_number}."
+                        )
+            pairs.append(pair)
+
+    if not pairs:
+        raise ValueError(f"No worker pairs were found in {PAIR_DATA_PATH}.")
+    return pairs
+
+
+WORKER_PAIRS = load_worker_pairs()
+WORKER_PAIRS_BY_ID = {pair["pair_id"]: pair for pair in WORKER_PAIRS}
+
+
+def load_manager_assignments() -> dict[tuple[str, int], list[dict]]:
+    """Load a schedule in which every worker pair is assigned exactly once."""
+    required_fields = {
+        "treatment",
+        "manager_slot",
+        "decision_number",
+        "pair_id",
+        "worker_1_is_a",
+        "assignment_seed",
+    }
+    try:
+        assignment_file = ASSIGNMENT_DATA_PATH.open(
+            newline="", encoding="utf-8-sig"
+        )
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            f"Missing {ASSIGNMENT_DATA_PATH}. Run "
+            "manager/matching/create_manager_assignments.py before starting oTree."
+        ) from exc
+
+    assignments_by_manager = {}
+    assigned_pair_ids = set()
+    assignment_seeds = set()
+    valid_treatments = {C.PERFORMANCE_ONLY, C.PERFORMANCE_AND_HELP}
+    with assignment_file:
+        reader = csv.DictReader(assignment_file)
+        missing_fields = required_fields.difference(reader.fieldnames or [])
+        if missing_fields:
+            raise ValueError(
+                f"{ASSIGNMENT_DATA_PATH} is missing columns: {sorted(missing_fields)}"
+            )
+
+        for row_number, row in enumerate(reader, start=2):
+            treatment = row["treatment"].strip()
+            if treatment not in valid_treatments:
+                raise ValueError(
+                    f"Invalid treatment {treatment!r} on row {row_number}."
+                )
+            try:
+                assignment = dict(
+                    treatment=treatment,
+                    manager_slot=int(row["manager_slot"]),
+                    decision_number=int(row["decision_number"]),
+                    pair_id=int(row["pair_id"]),
+                    worker_1_is_a=bool(int(row["worker_1_is_a"])),
+                    assignment_seed=int(row["assignment_seed"]),
+                )
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"Invalid value in {ASSIGNMENT_DATA_PATH} on row {row_number}."
+                ) from exc
+
+            if assignment["manager_slot"] < 1:
+                raise ValueError(f"manager_slot must be positive on row {row_number}.")
+            if row["worker_1_is_a"].strip() not in {"0", "1"}:
+                raise ValueError(
+                    f"worker_1_is_a must be 0 or 1 on row {row_number}."
+                )
+            if not 1 <= assignment["decision_number"] <= C.NUM_ROUNDS:
+                raise ValueError(
+                    f"decision_number must be between 1 and {C.NUM_ROUNDS} "
+                    f"on row {row_number}."
+                )
+            if assignment["pair_id"] not in WORKER_PAIRS_BY_ID:
+                raise ValueError(
+                    f"Unknown pair_id {assignment['pair_id']} on row {row_number}."
+                )
+            if assignment["pair_id"] in assigned_pair_ids:
+                raise ValueError(
+                    f"pair_id {assignment['pair_id']} is assigned more than once."
+                )
+            assigned_pair_ids.add(assignment["pair_id"])
+            assignment_seeds.add(assignment["assignment_seed"])
+
+            manager_key = (treatment, assignment["manager_slot"])
+            assignments_by_manager.setdefault(manager_key, []).append(assignment)
+
+    expected_pair_ids = set(WORKER_PAIRS_BY_ID)
+    if assigned_pair_ids != expected_pair_ids:
+        missing_pair_ids = sorted(expected_pair_ids - assigned_pair_ids)
+        raise ValueError(
+            f"Every pair must be assigned exactly once. Missing pair IDs: "
+            f"{missing_pair_ids}."
+        )
+    if len(assignment_seeds) != 1:
+        raise ValueError(
+            f"All rows in {ASSIGNMENT_DATA_PATH} must use the same assignment seed."
+        )
+
+    for manager_key, assignments in assignments_by_manager.items():
+        assignments.sort(key=lambda assignment: assignment["decision_number"])
+        decision_numbers = [
+            assignment["decision_number"] for assignment in assignments
+        ]
+        expected_numbers = list(range(1, len(assignments) + 1))
+        if decision_numbers != expected_numbers:
+            raise ValueError(
+                f"Manager {manager_key} must have consecutive decision numbers "
+                f"starting at 1; found {decision_numbers}."
+            )
+    for treatment in valid_treatments:
+        slots = sorted(
+            manager_slot
+            for assignment_treatment, manager_slot in assignments_by_manager
+            if assignment_treatment == treatment
+        )
+        if slots and slots != list(range(1, len(slots) + 1)):
+            raise ValueError(
+                f"Manager slots for {treatment!r} must be consecutive starting at 1; "
+                f"found {slots}."
+            )
+    return assignments_by_manager
+
+
+MANAGER_ASSIGNMENTS = load_manager_assignments()
 
 
 def creating_session(subsession: Subsession):
-    """Assign 25 pseudo pairs to every manager when the session is created."""
-    if subsession.round_number != 1:
-        return
-
-    if len(PSEUDO_PAIRS) < C.NUM_ROUNDS:
+    """Copy this round's predetermined assignment into each manager's row."""
+    treatment = subsession.session.config["manager_treatment"]
+    scheduled_slots = sorted(
+        manager_slot
+        for assignment_treatment, manager_slot in MANAGER_ASSIGNMENTS
+        if assignment_treatment == treatment
+    )
+    players = subsession.get_players()
+    if subsession.round_number == 1 and len(players) != len(scheduled_slots):
         raise ValueError(
-            f"PSEUDO_PAIRS must contain at least {C.NUM_ROUNDS} pairs, "
-            f"but it contains {len(PSEUDO_PAIRS)}."
+            f"The {treatment!r} schedule contains {len(scheduled_slots)} manager "
+            f"slots, but this oTree session was created with {len(players)} "
+            "participants. Create the session with the scheduled participant count."
         )
 
-    for first_round_player in subsession.get_players():
-        # Each manager sees all 25 pairs in an independently randomized order.
-        ordered_pairs = random.sample(PSEUDO_PAIRS, k=C.NUM_ROUNDS)
+    for player in players:
+        manager_slot = player.id_in_subsession
+        manager_key = (treatment, manager_slot)
+        assignments = MANAGER_ASSIGNMENTS.get(manager_key)
+        if not assignments:
+            raise ValueError(f"No assignments found for manager {manager_key}.")
 
-        for round_number, pair in enumerate(ordered_pairs, start=1):
-            player = first_round_player.in_round(round_number)
-            player.pair_id = pair['pair_id']
+        assigned_pair_count = len(assignments)
+        assignment_seed = assignments[0]["assignment_seed"]
+        player.manager_slot = manager_slot
+        player.manager_treatment = treatment
+        player.assigned_pair_count = assigned_pair_count
+        player.assignment_seed = assignment_seed
 
-            # Randomize left/right position so the original worker is not always A.
-            swap_workers = random.choice([True, False])
+        assignment = next(
+            (
+                assignment
+                for assignment in assignments
+                if assignment["decision_number"] == subsession.round_number
+            ),
+            None,
+        )
+        if assignment is None:
+            continue
 
-            if not swap_workers:
-                player.worker_a_id = pair['w1_id']
-                player.worker_a_correct = pair['w1_correct']
-                player.worker_a_help = pair['w1_help']
+        pair = WORKER_PAIRS_BY_ID[assignment["pair_id"]]
+        player.pair_id = pair["pair_id"]
+        player.worker_1_is_a = assignment["worker_1_is_a"]
 
-                player.worker_b_id = pair['w2_id']
-                player.worker_b_correct = pair['w2_correct']
-                player.worker_b_help = pair['w2_help']
-            else:
-                player.worker_a_id = pair['w2_id']
-                player.worker_a_correct = pair['w2_correct']
-                player.worker_a_help = pair['w2_help']
-
-                player.worker_b_id = pair['w1_id']
-                player.worker_b_correct = pair['w1_correct']
-                player.worker_b_help = pair['w1_help']
+        if assignment["worker_1_is_a"]:
+            player.worker_a_id = pair["w1_id"]
+            player.worker_a_correct = pair["w1_correct"]
+            player.worker_a_help = pair["w1_help"]
+            player.worker_b_id = pair["w2_id"]
+            player.worker_b_correct = pair["w2_correct"]
+            player.worker_b_help = pair["w2_help"]
+        else:
+            player.worker_a_id = pair["w2_id"]
+            player.worker_a_correct = pair["w2_correct"]
+            player.worker_a_help = pair["w2_help"]
+            player.worker_b_id = pair["w1_id"]
+            player.worker_b_correct = pair["w1_correct"]
+            player.worker_b_help = pair["w1_help"]
 
 
 # -----------------------------------------------------------------------------
@@ -131,6 +325,10 @@ class Introduction(Page):
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        return dict(total_decisions=player.assigned_pair_count)
 
 
 class WhatYouWillSee(Page):
@@ -150,7 +348,10 @@ class YourTask(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        return dict(show_help=player.session.config['show_help'])
+        return dict(
+            show_help=player.session.config['show_help'],
+            total_decisions=player.assigned_pair_count,
+        )
 
 
 class PaymentReminder(Page):
@@ -168,11 +369,15 @@ class Allocation(Page):
     form_fields = ['allocation_a', 'allocation_b']
 
     @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number <= player.assigned_pair_count
+
+    @staticmethod
     def vars_for_template(player: Player):
         return dict(
             show_help=player.session.config['show_help'],
             decision_number=player.round_number,
-            total_decisions=C.NUM_ROUNDS,
+            total_decisions=player.assigned_pair_count,
         )
 
     @staticmethod
@@ -201,7 +406,11 @@ class Allocation(Page):
 class Completion(Page):
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == C.NUM_ROUNDS
+        return player.round_number == player.assigned_pair_count
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        return dict(total_decisions=player.assigned_pair_count)
 
 
 page_sequence = [

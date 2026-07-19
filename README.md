@@ -1,5 +1,12 @@
 # Template repository for oTree experiment project
 
+## New: five-level oTree learning course
+
+The existing experiments remain unchanged. A separate progressive course has been
+added in the `learning_1_risk` through `learning_5_trust` folders. Start with
+[`OTREE_LEARNING_COURSE.md`](OTREE_LEARNING_COURSE.md) for runnable examples,
+line-by-line concept explanations, and one assignment per level.
+
 This is a template repository that sets up a project using oTree (https://otree.org).
 
 Aside from saving a few steps in setting up the repository itself (via GitHub's templating feature),

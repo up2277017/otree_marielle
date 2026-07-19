@@ -1,34 +1,18 @@
 MANAGER OTREE APP (oTree 6.0.15)
 
-1. Copy the folder named "manager" into the root of your oTree project,
-   beside settings.py.
+OPEN THIS FILE FOR THE COMPLETE STEP-BY-STEP RUNBOOK:
 
-2. Open your existing settings.py and add the two session configurations
-   from settings_snippet.py to SESSION_CONFIGS.
+    manager/README.md
 
-3. Reset the database after adding/changing model fields:
-      otree resetdb
+It covers the complete 1,400-worker simulation:
 
-4. Start the development server:
-      otree devserver
+- safely stopping and restarting the server;
+- creating 700 random worker pairs;
+- assigning all pairs once across 28 managers and two treatments;
+- creating both 14-participant sessions while the server is stopped;
+- testing both treatments and the allocation validator;
+- checking the long-format export; and
+- calculating worker bonuses later.
 
-5. Test either session config from the oTree admin/demo page:
-      manager_performance_only
-      manager_performance_and_help
-
-DESIGN IMPLEMENTED
-- One manager per participant; no groups or wait pages.
-- 25 rounds and 25 worker pairs.
-- Instructions appear only before round 1.
-- Pair order is randomized separately for each manager.
-- Worker A/B position is randomized within each pair.
-- Performance-only session hides helping information.
-- Performance-and-help session shows helping information.
-- Managers type separate allocations for A and B.
-- JavaScript gives live feedback.
-- Python performs final server-side validation that allocations equal 100p.
-- Pseudo worker IDs and characteristics are stored in the exported data.
-
-IMPORTANT
-The worker data in __init__.py are temporary pseudo data. Replace PSEUDO_PAIRS
-with the final paired Qualtrics data before running the actual experiment.
+Do not run resetdb unless you intentionally want to delete every local session
+and all local test responses.
