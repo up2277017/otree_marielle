@@ -1,0 +1,11 @@
+{{ block title }}Result{{ endblock }}
+
+{{ block content }}
+<table class="table">
+    <tr><th>Your choice</th><td>{{ chosen_option }}</td></tr>
+    <tr><th>Random draw (1–100)</th><td>{{ player.random_draw }}</td></tr>
+    <tr><th>Decision payoff</th><td>{{ player.payoff }}</td></tr>
+    <tr><th>Endowment + decision payoff</th><td>{{ total_payment }}</td></tr>
+</table>
+{{ next_button }}
+{{ endblock }}

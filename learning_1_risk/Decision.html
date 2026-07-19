@@ -1,0 +1,9 @@
+{{ block title }}Your decision{{ endblock }}
+
+{{ block content }}
+<p>The risky option pays {{ C.HIGH_PRIZE }} with probability
+   {{ C.HIGH_PRIZE_PROBABILITY }}%, and {{ C.LOW_PRIZE }} otherwise.</p>
+
+{{ formfields }}
+{{ next_button }}
+{{ endblock }}
