@@ -1,0 +1,12 @@
+{{ block title }}
+    Profile Creation
+{{ endblock }}
+{{ block content }}
+<p> Please choose a nickname for yourself: </p>
+    {{ formfield 'nickname' }}
+<p> Please confirm that you have read the instructions: </p>
+    {{ formfield 'read_instructions' }}
+
+    {{ next_button }}
+
+{{ endblock }}

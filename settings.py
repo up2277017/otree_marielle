@@ -104,6 +104,12 @@ SESSION_CONFIGS = [
         app_sequence=["assignment_1_mpl"],
         num_demo_participants=1,
     ),
+    dict(
+        name="Basic_assignment",
+        display_name="Assignment 0 - Learning OTREE commands",
+        app_sequence=["basic_assignment"],
+        num_demo_participants=1,
+    ),
 ]
 # note that stuff added here can be changed direcly in the browser before the experimet is run.
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
