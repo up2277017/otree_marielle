@@ -1,0 +1,13 @@
+{{ block title }}Round {{ player.round_number }} result{{ endblock }}
+
+{{ block content }}
+<table class="table table-striped">
+    <tr><th>Your contribution</th><td>{{ player.contribution }}</td></tr>
+    <tr><th>Others' contributions</th>
+        <td>{{ for other in other_players }}{{ other.contribution }}{{ if not forloop.last }}, {{ endif }}{{ endfor }}</td></tr>
+    <tr><th>Group total</th><td>{{ group.total_contribution }}</td></tr>
+    <tr><th>Your share of the public good</th><td>{{ group.individual_share }}</td></tr>
+    <tr><th>Your payoff</th><td>{{ player.payoff }}</td></tr>
+</table>
+{{ next_button }}
+{{ endblock }}

@@ -1,0 +1,10 @@
+{{ block title }}Level 3: ultimatum game{{ endblock }}
+
+{{ block content }}
+<p>You are paired with one other person for {{ C.NUM_ROUNDS }} rounds. Your role is
+   <strong>{{ player.role }}</strong> and stays fixed.</p>
+<p>The proposer divides {{ C.PIE }}. The responder accepts or rejects. Acceptance
+   implements the division; rejection gives both people zero.</p>
+{{ formfields }}
+{{ next_button }}
+{{ endblock }}

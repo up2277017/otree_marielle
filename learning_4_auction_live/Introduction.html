@@ -1,0 +1,11 @@
+{{ block title }}Level 4: live ascending auction{{ endblock }}
+
+{{ block content }}
+<p>Three bidders compete for one item. Your private value is
+   <strong>{{ player.private_value }}</strong>. Other bidders do not see it.</p>
+<p>Bids must rise by at least {{ C.MINIMUM_INCREMENT }}. The winner pays the final
+   bid, so the winner's payoff is value minus price. Everyone must bid once before
+   the auction can be ended.</p>
+<div class="alert alert-warning">Bidding more than your value can create a loss in a real auction.</div>
+{{ next_button }}
+{{ endblock }}

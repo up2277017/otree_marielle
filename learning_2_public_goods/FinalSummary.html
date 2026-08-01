@@ -1,0 +1,12 @@
+{{ block title }}Three-round summary{{ endblock }}
+
+{{ block content }}
+<table class="table">
+    <tr><th>Round</th><th>Your contribution</th><th>Your payoff</th></tr>
+    {{ for p in rounds }}
+    <tr><td>{{ p.round_number }}</td><td>{{ p.contribution }}</td><td>{{ p.payoff }}</td></tr>
+    {{ endfor }}
+    <tr class="table-info"><th>Total</th><th>{{ total_contributed }}</th><th>{{ total_payoff }}</th></tr>
+</table>
+{{ next_button }}
+{{ endblock }}

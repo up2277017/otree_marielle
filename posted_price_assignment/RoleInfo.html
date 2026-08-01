@@ -1,0 +1,16 @@
+{{ block title }}
+    Role Information
+{{ endblock }}
+
+{{ block content }}
+{{ if player.role == C.BUYER_ROLE }}
+<p>You are assigned to be a {{ C.BUYER_ROLE }}. Your valuation of the object is {{ C.BUYER_VALUE }}. </p>
+{{ else }}
+<p> You are assigned to be a {{ C.SELLER_ROLE }}.  Your production cost is {{ C.SELLER_PROD_COST }}. </p>
+{{ endif }}
+<p> The maximum posted price for this session is {{ session.config.price_cap }}</p>
+
+    {{ next_button }}
+{{ endblock }}
+
+

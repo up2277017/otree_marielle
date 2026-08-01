@@ -1,0 +1,8 @@
+{{ block title }}Round {{ player.round_number }}: investor decision{{ endblock }}
+
+{{ block content }}
+<p>You have {{ C.ENDOWMENT }}. Every £1 sent becomes £{{ C.MULTIPLIER }} for the trustee.</p>
+<p>Your counterpart: <strong>{{ counterpart_label }}</strong></p>
+{{ formfields }}
+{{ next_button }}
+{{ endblock }}

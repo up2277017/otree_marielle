@@ -11,8 +11,8 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 2
     ENDOWMENT = Currency(10)
-    MAX_CONTRIBUTION = 10
-    MIN_CONTRIBUTION = 0
+    MAX_CONTRIBUTION = Currency(10)
+    MIN_CONTRIBUTION = Currency(0)
     MAX_SHARED_CONT = 20
 
 
@@ -21,8 +21,8 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    total_contribution_group = models.IntegerField()
-    equal_share_per_participant = models.IntegerField()
+    total_contribution = models.IntegerField()
+    equal_share = models.CurrencyField()
 
 
 class Player(BasePlayer):
@@ -36,16 +36,13 @@ class Player(BasePlayer):
         label = "How much do you think will be the other participant's contribution?",
         min = 1,
         max = 10,
-        widget = widgets.RadioSelectHorizontal(),
     )
     own_contribution = models.IntegerField(
         label = "How much do you want to contribute the shared box",
         min = 1,
         max = 10,
     )
-    retained_tokens = models.IntegerField()
-    total_contribution = models.IntegerField()
-    equal_share = models.CurrencyField()
+    retained_tokens = models.CurrencyField()
 
 def calculate_retained_tokens(player: Player):
     player.retained_tokens = C.ENDOWMENT - player.own_contribution
@@ -56,7 +53,7 @@ def group_calculation(group: Group):
     group.total_contribution = 0
     for player in players_in_group:
         group.total_contribution += player.own_contribution
-    group.equal_share = 0.5 * group.total_contribution
+    group.equal_share = Currency(group.total_contribution/C.PLAYERS_PER_GROUP)
     for player in players_in_group:
         player.payoff = group.equal_share + player.retained_tokens
 
@@ -90,7 +87,7 @@ class Profile(Page):
 class Decision(Page):
     #form_model = "player"
     #form_fields = ["own_contribution", "prediction"]
-
+    form_model = "player"
     @staticmethod
     def get_form_fields(player: Player):
         return ["own_contribution", "prediction"]
@@ -128,7 +125,8 @@ class FinalSummary(Page):
         all_records = player.in_all_rounds()
         own_contribution_total = sum(player.own_contribution for player in all_records)
         payoff_total = sum(player.payoff for player in all_records)
-        return dict(contribution_total_html = own_contribution_total,
+        return dict(all_records = all_records,
+                    contribution_total_html = own_contribution_total,
                     payoff_total_html = payoff_total)
 
 

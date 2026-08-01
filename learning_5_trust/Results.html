@@ -1,0 +1,13 @@
+{{ block title }}Round {{ player.round_number }} result{{ endblock }}
+
+{{ block content }}
+<table class="table">
+    <tr><th>Your role</th><td>{{ player.role }}</td></tr>
+    <tr><th>Your counterpart</th><td>{{ counterpart_label }}</td></tr>
+    <tr><th>Investor sent</th><td>{{ group.sent_amount }}</td></tr>
+    <tr><th>Amount after multiplication</th><td>{{ group.tripled_amount }}</td></tr>
+    <tr><th>Trustee returned</th><td>{{ group.returned_amount }}</td></tr>
+    <tr><th>Your earnings this round</th><td>{{ player.round_earnings }}</td></tr>
+</table>
+{{ next_button }}
+{{ endblock }}

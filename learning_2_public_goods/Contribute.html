@@ -1,0 +1,7 @@
+{{ block title }}Round {{ player.round_number }} of {{ C.NUM_ROUNDS }}{{ endblock }}
+
+{{ block content }}
+<p>Rounds remaining after this one: {{ rounds_left }}</p>
+{{ formfield 'contribution' }}
+{{ next_button }}
+{{ endblock }}

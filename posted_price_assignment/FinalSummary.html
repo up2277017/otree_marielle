@@ -1,0 +1,33 @@
+{{ block title }}
+    Finall Summary of Experiment
+{{ endblock }}
+{{ block content }}
+<table class="table">
+    <thead>
+    <tr>
+        <th>Round Number</th>
+        <th>Round Payoff</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {{ for player in all_players }}
+    <tr>
+        <td>{{ player.round_number }}</td>
+        <td>{{ player.payoff }}</td>
+    </tr>
+    {{ endfor }}
+    </tbody>
+
+    <tfoot>
+    <tr>
+        <th>Total</th>
+        <th>{{ total_payoff }}</th>
+    </tr>
+    </tfoot>
+
+</table>
+
+    {{ next_button }}
+
+{{ endblock }}

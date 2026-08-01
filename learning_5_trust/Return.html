@@ -1,0 +1,10 @@
+{{ block title }}Round {{ player.round_number }}: trustee decision{{ endblock }}
+
+{{ block content }}
+<p>The investor sent <strong>{{ group.sent_amount }}</strong>. You received
+   <strong>{{ group.tripled_amount }}</strong>.</p>
+<p>Your counterpart: <strong>{{ counterpart_label }}</strong></p>
+<p>You may return between £0 and {{ maximum_return }}.</p>
+{{ formfields }}
+{{ next_button }}
+{{ endblock }}

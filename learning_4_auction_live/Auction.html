@@ -1,0 +1,58 @@
+{{ block title }}Live auction{{ endblock }}
+
+{{ block styles }}
+<style>
+    .price { font-size: 3rem; font-weight: 700; color: #0b5ed7; }
+    #message { min-height: 1.5rem; }
+</style>
+{{ endblock }}
+
+{{ block content }}
+<p>Your private value: <strong>{{ player.private_value }}</strong></p>
+<div class="card text-center mb-3">
+    <div class="card-body">
+        <div>Current highest bid</div>
+        <div class="price">£<span id="highest-bid">0</span></div>
+        <div>Highest bidder: <span id="highest-bidder">none</span></div>
+        <div>Total bid events: <span id="bid-count">0</span></div>
+    </div>
+</div>
+
+<div class="input-group mb-2">
+    <span class="input-group-text">£</span>
+    <input id="bid-input" type="number" min="1" step="1" class="form-control">
+    <button id="bid-button" type="button" class="btn btn-primary">Place bid</button>
+</div>
+<button id="finish-button" type="button" class="btn btn-outline-danger" disabled>End auction</button>
+<p id="message" class="mt-2 text-danger"></p>
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+    const myId = {{ player.id_in_group }};
+    const bidInput = document.getElementById('bid-input');
+    const bidButton = document.getElementById('bid-button');
+    const finishButton = document.getElementById('finish-button');
+
+    bidButton.addEventListener('click', () => {
+        liveSend({type: 'bid', amount: bidInput.value});
+    });
+    finishButton.addEventListener('click', () => liveSend({type: 'finish'}));
+
+    function liveRecv(data) {
+        document.getElementById('highest-bid').textContent = data.highest_bid;
+        document.getElementById('highest-bidder').textContent =
+            data.highest_bidder_id === 0 ? 'none' :
+            (data.highest_bidder_id === myId ? 'you' : `bidder ${data.highest_bidder_id}`);
+        document.getElementById('bid-count').textContent = data.bid_count;
+        document.getElementById('message').textContent = data.error || '';
+        finishButton.disabled = !data.can_finish || data.finished;
+        bidButton.disabled = data.finished;
+        if (data.finished) {
+            document.getElementById('form').submit();
+        }
+    }
+
+    liveSend({type: 'load'});
+</script>
+{{ endblock }}

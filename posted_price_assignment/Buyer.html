@@ -1,0 +1,12 @@
+{{ block title }}
+    Seller Page
+{{ endblock }}
+{{ block content }}
+<p> Your valuation is {{ C.BUYER_VALUE }}.
+    The price cap for this session is {{ session.config.price_cap }}.
+    The seller's price is {{ group.seller_posted_price }}. </p>
+
+    {{ formfields 'buyer_decision' }}
+    {{ next_button }}
+
+{{ endblock }}

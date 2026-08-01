@@ -1,0 +1,13 @@
+{{ block title }}Round {{ player.round_number }} result{{ endblock }}
+
+{{ block content }}
+<table class="table">
+    <tr><th>Your role</th><td>{{ player.role }}</td></tr>
+    <tr><th>Offer to responder</th><td>{{ group.offer }}</td></tr>
+    <tr><th>Proposer would keep</th><td>{{ proposer_keeps }}</td></tr>
+    <tr><th>Accepted?</th><td>{{ if group.accepted }}Yes{{ else }}No{{ endif }}</td></tr>
+    <tr><th>Your payoff</th><td>{{ player.payoff }}</td></tr>
+    <tr><th>Other player's payoff</th><td>{{ player.other_player.payoff }}</td></tr>
+</table>
+{{ next_button }}
+{{ endblock }}

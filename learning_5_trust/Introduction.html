@@ -1,0 +1,17 @@
+{{ block title }}Level 5: repeated trust game{{ endblock }}
+
+{{ block content }}
+<p>You will play {{ C.NUM_ROUNDS }} rounds, with stranger rematching between rounds.
+   Your role remains <strong>{{ player.role }}</strong>.</p>
+<p>The investor can send 0–{{ C.ENDOWMENT }}. The amount is multiplied by
+   {{ C.MULTIPLIER }}. The trustee then decides how much to return.</p>
+<div class="alert alert-info">
+    Your information treatment is <strong>{{ player.treatment }}</strong>.
+    {{ if player.treatment == C.IDENTIFIED }}You see stable participant labels in this treatment.
+    {{ else }}The interaction is described as fully anonymous.{{ endif }}
+</div>
+<p>One round was randomly selected when the session was created and will determine
+   your payoff. It is revealed only at the end.</p>
+<small>Session balance: {{ treatment_counts }}</small>
+{{ next_button }}
+{{ endblock }}

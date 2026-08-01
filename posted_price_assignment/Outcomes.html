@@ -1,0 +1,27 @@
+{{ block title }}
+    Outcomes for this round
+{{ endblock }}
+{{ block content }}
+<p>This round is {{ player.round_number }} </p>
+<p>Your role: {{ player.role }}</p>
+<p>Posted price: {{ group.seller_posted_price }}</p>
+
+{{ if group.buyer_timeout }}
+<p>Buyer timed out. So, it's automatic rejection of your posted price. </p>
+{{ else }}
+<p>Buyer submitted normally and did not time out. </p>
+{{ endif }}
+
+{{ if group.trade_occurred }}
+<p>Trade occurred </p>
+{{ else }}
+<p> Trade did not occur. </p>
+{{ endif }}
+
+<p>Buyer’s decision: {{ decision_label }}</p>
+
+<p>Your payoff: {{ player.payoff }}</p>
+
+    {{ next_button }}
+
+{{ endblock }}

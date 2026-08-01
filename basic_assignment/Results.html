@@ -3,8 +3,8 @@
 {{ endblock }}
 
 {{ block content }}
-<p> This is round {{ player.round }}. Your contribution for this round is {{ player.own_contribution }}. Your
-    partner's contribution this round is {{ other.contribution }}. The group total is {{ group.total_contribution }}
+<p> This is round {{ player.round_number }}. Your contribution for this round is {{ player.own_contribution }}. Your
+    partner's contribution this round is {{ other_contribution }}. The group total is {{ group.total_contribution }}
     and the equal share for each of you is {{ group.equal_share }}. You retained {{ player.retained_tokens }}. So, your
     total payoff for this round is {{ player.payoff }}. </p>
 

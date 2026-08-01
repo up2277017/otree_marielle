@@ -1,0 +1,14 @@
+{{ block title }}Level 2: public-goods game{{ endblock }}
+
+{{ block content }}
+<p>You are in the same group of {{ C.PLAYERS_PER_GROUP }} for {{ C.NUM_ROUNDS }} rounds.</p>
+<ol>
+    <li>Each member receives {{ C.ENDOWMENT }}.</li>
+    <li>Everyone independently contributes between £0 and {{ C.ENDOWMENT }}.</li>
+    <li>The group total is multiplied by {{ C.MULTIPLIER }} and shared equally.</li>
+</ol>
+<div class="alert alert-info">
+    Payoff = {{ C.ENDOWMENT }} − your contribution + your equal share.
+</div>
+{{ next_button }}
+{{ endblock }}

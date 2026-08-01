@@ -1,0 +1,20 @@
+{{ block title }}Auction result{{ endblock }}
+
+{{ block content }}
+<div class="alert {{ if won }}alert-success{{ else }}alert-secondary{{ endif }}">
+    {{ if won }}You won the item.{{ else }}You did not win the item.{{ endif }}
+</div>
+<table class="table">
+    <tr><th>Your value</th><td>{{ player.private_value }}</td></tr>
+    <tr><th>Final price</th><td>{{ group.highest_bid }}</td></tr>
+    <tr><th>Winner's ID in group</th><td>{{ group.highest_bidder_id }}</td></tr>
+    <tr><th>Your payoff</th><td>{{ player.payoff }}</td></tr>
+</table>
+<h5>Bid history stored in <code>Bid(ExtraModel)</code></h5>
+<ol>
+{{ for bid in bids }}
+    <li>Bidder {{ bid.player.id_in_group }}: {{ bid.amount }}</li>
+{{ endfor }}
+</ol>
+{{ next_button }}
+{{ endblock }}

@@ -1,0 +1,10 @@
+{{ block title }}Round {{ player.round_number }}: respond{{ endblock }}
+
+{{ block content }}
+<div class="alert alert-secondary">
+    The proposer offers you <strong>{{ group.offer }}</strong> and would keep
+    <strong>{{ proposer_keeps }}</strong> if you accept.
+</div>
+{{ formfields }}
+{{ next_button }}
+{{ endblock }}

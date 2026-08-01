@@ -1,0 +1,11 @@
+{{ block title }}
+    Seller Page
+{{ endblock }}
+{{ block content }}
+<p> Your production cost is {{ C.SELLER_PROD_COST }}.
+    The price cap for this session is {{ session.config.price_cap }}. </p>
+
+    {{ formfields 'seller_posted_price' }}
+    {{ next_button }}
+
+{{ endblock }}

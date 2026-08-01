@@ -108,7 +108,23 @@ SESSION_CONFIGS = [
         name="Basic_assignment",
         display_name="Assignment 0 - Learning OTREE commands",
         app_sequence=["basic_assignment"],
-        num_demo_participants=1,
+        num_demo_participants=2,
+    ),
+    dict(
+        name="Low_Cap_Posted_price",
+        display_name="Assignment: Low Cap Posted Price",
+        app_sequence=["posted_price_assignment"],
+        num_demo_participants=2,
+        price_cap = 8,
+        decision_seconds = 20,
+    ),
+    dict(
+        name="High_Cap_Posted_price",
+        display_name="Assignment: High Cap Posted Price",
+        app_sequence=["posted_price_assignment"],
+        num_demo_participants=2,
+        price_cap = 10,
+        decision_seconds = 20,
     ),
 ]
 # note that stuff added here can be changed direcly in the browser before the experimet is run.
