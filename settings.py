@@ -86,7 +86,9 @@ SESSION_CONFIGS = [
         name="manager_performance_only",
         display_name="Manager Study – Performance Only",
         app_sequence=["manager"],
-        num_demo_participants=1,
+        # The supplied schedule has 350 pairs across 14 managers, with
+        # 25 decisions for each manager.
+        num_demo_participants=14,
         manager_treatment="performance_only",
         show_help=False,
     ),
@@ -94,7 +96,8 @@ SESSION_CONFIGS = [
         name="manager_performance_and_help",
         display_name="Manager Study – Performance and Helping",
         app_sequence=["manager"],
-        num_demo_participants=1,
+        # This treatment also has 14 scheduled manager slots.
+        num_demo_participants=14,
         manager_treatment="performance_and_help",
         show_help=True,
     ),
